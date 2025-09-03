@@ -42,36 +42,34 @@ export async function POST(req: Request) {
     });
 
     // Configure transporter
-    // const transporter = nodemailer.createTransport({
-    //   host: "smtp.gmail.com",
-    //   port: 465,
-    //   secure: true,
-    //   auth: {
-    //     user: process.env.GMAIL_USER,
-    //     pass: process.env.GMAIL_PASS,
-    //   },
-    // });
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    });
 
-    // try {
-    //   const info = await transporter.sendMail({
-    //     from: `"Quiz App" <${process.env.GMAIL_USER}>`,
-    //     to: parsed.email,
-    //     subject: "Your Quiz Recommendation",
-    //     html: `<p>Hi ${parsed.name},</p>
-    //     <p>Your recommendation:</p>
-    //     <blockquote>${recommendation}</blockquote>
-    //     <p>— Next Quiz App</p>`,
-    //   });
+    try {
+      const info = await transporter.sendMail({
+        from: `"Quiz App" <${process.env.GMAIL_USER}>`,
+        to: parsed.email,
+        subject: "Your Quiz Recommendation",
+        html: `<p>Hi ${parsed.name},</p>
+        <p>Your recommendation:</p>
+        <blockquote>${recommendation}</blockquote>
+        <p>— Next Quiz App</p>`,
+      });
 
-    //   console.log("✅ Email sent:", info.messageId);
-    // } catch (mailErr) {
-    //   console.error("❌ Mail send error:", mailErr);
-    //   // Do not fail request if mail fails
-    // }
+      console.log("✅ Email sent:", info.messageId);
+    } catch (mailErr) {
+      console.error("❌ Mail send error:", mailErr);
+    }
 
     return NextResponse.json({ ok: true, recommendation });
   } catch (err: any) {
-    console.error("❌ API submit error:", err);
     const message =
       err?.issues?.[0]?.message || err.message || "Invalid request";
     return NextResponse.json({ ok: false, message }, { status: 400 });
