@@ -49,15 +49,29 @@ export default function QuizForm() {
 
     setLoading(true);
     setError(null);
+
     try {
       const res = await fetch("/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, answers }),
       });
-      const data = await res.json();
-      if (!res.ok || !data.ok)
-        throw new Error(data.message || "Submission failed");
+
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        // fallback if server didn’t return JSON
+        const text = await res.text();
+        throw new Error(`Invalid JSON response: ${text}`);
+      }
+
+      if (!res.ok || !data?.ok) {
+        throw new Error(
+          data?.message || `Submission failed (status ${res.status})`
+        );
+      }
+
       router.push(`/thank-you?rec=${encodeURIComponent(data.recommendation)}`);
     } catch (e: unknown) {
       if (e instanceof Error) setError(e.message);
